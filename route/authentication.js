@@ -18,7 +18,8 @@ async function signup(req, res){
       const userId = (lastUser?.userId ? lastUser.userId + 1 : 1)
       body = {
         ...body,
-        userId: userId
+        userId: userId,
+        address: []
       }
       const document = new users(body)
       await document.save();
@@ -37,7 +38,7 @@ async function login(req, res) {
     const userData = await users.find({username: body.username});
     if(userData.length === 1){
       if(body.password === userData[0].password){
-        const token = jwt.sign({ userId:  userData[0].userId}, secretKey);
+        const token = jwt.sign({ userId:  userData[0].userId,exp: Math.floor(Date.now() / 1000) + (60 * 60 * 12)}, secretKey);
         const {firstname, lastname, username, userId} = userData[0];
         const user = { firstname, lastname, username, userId }
         res.json({data: {message: 'login success', code: 2000, user, token} });
@@ -58,10 +59,10 @@ async function verifyToken(req, res) {
   const token = req.headers['authorization']
   jwt.verify(token, secretKey, async(err, decoded) => {
     if (err) {
-      res.json({ valid: false });
+      res.status(401).json({ valid: false, message: err.message, err});
     } else {
       const userData = await users.find({userId: decoded?.userId},{_id: 0, __v: 0, password: 0, address: 0})
-      res.json({ valid: true , user: userData[0]});
+      res.json({ valid: true , user: userData[0], decoded});
     }
   });
 }

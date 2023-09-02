@@ -8,8 +8,12 @@ const router = express.Router();
 async function vegitablesData(req,res) {
   try{
     let data;
-    const limit = req.query?.limit || 20;
-    data = await vegitables.find().limit(limit);
+    const limit = req.query?.limit;
+    if(limit) {
+      data = await vegitables.find().limit(limit)
+    }
+    else data = await vegitables.find();
+   
     res.status(200).send(data);
     
   }
@@ -21,8 +25,11 @@ async function vegitablesData(req,res) {
 async function fruitsData(req,res) {
   try{
     let data;
-    const limit = req.query?.limit || 20;
-    data = await fruits.find().limit(limit);
+    const limit = req.query?.limit;
+    if(limit) {
+      data = await fruits.find().limit(limit)
+    }
+    else data = await fruits.find();
     res.status(200).send(data);
   }
   catch(e){

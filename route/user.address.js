@@ -128,5 +128,50 @@ route.delete('/removeAddressById/:addressId', (req, res)=>{
   });
 })
 
+route.get('/userDetails', (req, res) => {
+
+  try {
+    const token = req.headers['authorization'];
+    const userId = +req.query.userId;
+    console.log(userId)
+    jwt.verify(token, secretKey, async (err, decoded) => {
+      if (err) {
+        res.status(401).send({ error: { message: err.message, code: 4001 } });
+      } else {
+        if (decoded.userId === userId) {
+          let query = {
+            $project: {
+              _id: 0,
+              firstname: 1,
+              lastname: 1,
+              username: 1,
+              userId: 1,
+              address: {
+                $map: {
+                  input: "$address",
+                  as: "addr",
+                  in: {
+                    Hno: "$$addr.Hno",
+                    street: "$$addr.street",
+                    town: "$$addr.town",
+                    pincode: "$$addr.pincode"
+                  }
+                }
+              }
+            }
+          }
+          const userData = await users.aggregate([{ $match: { userId: userId } }, query]);
+          res.send({ data: { userDetails: userData[0] } })
+        }
+        else {
+          res.status(401).send({ error: { message: 'userId mismatch', code: 4001, decoded } });
+        }
+      }
+    });
+  } catch (e) {
+    res.status(500).send({ error: { message: e.message, code: 5000 } });
+
+  }
+});
 
 module.exports = route;
