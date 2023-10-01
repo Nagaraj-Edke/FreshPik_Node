@@ -10,9 +10,9 @@ async function vegitablesData(req,res) {
     let data;
     const limit = req.query?.limit;
     if(limit) {
-      data = await vegitables.find().limit(limit)
+      data = await vegitables.find({type: 'vegitable'}).limit(limit);
     }
-    else data = await vegitables.find();
+    else data = await vegitables.find({type: 'vegitable'});
    
     res.status(200).send(data);
     
