@@ -18,5 +18,8 @@
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.4.2"
+  },
+  "engines": {
+    "node": "14.20.1"
   }
 }
